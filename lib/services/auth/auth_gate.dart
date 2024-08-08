@@ -24,7 +24,7 @@ class AuthGate extends StatelessWidget {
           }
 
           if (authSnapshot.hasData) {
-            return const HomePage();
+            return HomePage();
           } else {
             return FutureBuilder<bool>(
               future: _hasCompletedOnboarding(),

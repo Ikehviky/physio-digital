@@ -1,19 +1,30 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:physio_digital/view/posts/view_post.dart';
+import '../../../exports.dart';
+import 'dart:math';
 
 class UpcomingEvents extends StatelessWidget {
-  const UpcomingEvents({Key? key}) : super(key: key);
+  final List<Post> events;
+
+  const UpcomingEvents({Key? key, required this.events}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final shuffledEventPosts = _getShuffledEventPosts();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Upcoming events', onViewAll: () {}),
-        _buildEventList(),
+        _buildSectionTitle('Upcoming Events', onViewAll: () {
+          Get.to(() => ListPostsPage());
+        }),
+        _buildEventList(shuffledEventPosts),
       ],
     );
+  }
+
+  List<Post> _getShuffledEventPosts() {
+    final eventPosts = events.where((post) => post.category.contains('Events')).toList();
+    eventPosts.shuffle(Random());
+    return eventPosts.take(3).toList(); // Display up to 3 random event posts
   }
 
   Widget _buildSectionTitle(String title, {required VoidCallback onViewAll}) {
@@ -24,111 +35,86 @@ class UpcomingEvents extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          // TextButton.icon(
-          //   onPressed: (){
-          //     // Get.to()
-          //   },
-          //   label: const Text(
-          //     'See all',
-          //     style: TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
-          //   ),
-          //   icon: const Icon(Icons.arrow_forward, size: 16),
-          //   iconAlignment: IconAlignment.end,
-          //   style: TextButton.styleFrom(
-          //     iconColor: const Color.fromARGB(255, 99, 99, 99), // Text color
-          //     backgroundColor: Colors.transparent, // Button color
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(20),
-          //     ),
-          //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEventList() {
-    return SizedBox(
-      height: 180,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildEventCard(
-            'Community Wellness Challenge: "Step Up for Health"',
-            '3rd, May',
-            Colors.orange.shade100,
-          ),
-          _buildEventCard(
-            'Live Q&A Session with the Experts',
-            '3rd, May',
-            Colors.teal.shade100,
+          TextButton.icon(
+            onPressed: onViewAll,
+            label: const Text(
+              'See all',
+              style: TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
+            ),
+            icon: const Icon(Icons.arrow_forward, size: 16),
+            style: TextButton.styleFrom(
+              iconColor: const Color.fromARGB(255, 99, 99, 99),
+              backgroundColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildEventCard(String title, String date, Color backgroundColor) {
-    return GestureDetector(
+  Widget _buildEventList(List<Post> eventPosts) {
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: eventPosts.length,
+      itemBuilder: (context, index) {
+        return _buildPostCard(eventPosts[index]);
+      },
+    );
+  }
+
+  Widget _buildPostCard(Post post) {
+    return InkWell(
       onTap: () {
-        //Get.to(const ViewArticlePage(post: post,));
+        Get.to(() => ViewArticlePage(post: post));
       },
       child: Container(
-        width: 200,
-        margin: const EdgeInsets.only(right: 16),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Stack(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+        color: Colors.white,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(12.0),
+            Expanded(
+              flex: 3,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(Icons.notifications, color: Colors.white),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      date,
-                      style: const TextStyle(
-                        color: Colors.black,
+                      'Events',
+                      style: TextStyle(
+                        color: Colors.blue[700],
                         fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 8),
                   Text(
-                    title,
+                    post.title ?? 'Untitled',
                     style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    post.description ?? 'No description available',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -136,16 +122,29 @@ class UpcomingEvents extends StatelessWidget {
                 ],
               ),
             ),
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Opacity(
-                opacity: 0.3,
-                child: Image.asset(
-                  'assets/images/circle_pattern.png',
-                  width: 140,
-                  height: 140,
-                ),
+            const SizedBox(width: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: post.images.isNotEmpty
+                  ? Image.network(
+                post.images[0],
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.error, color: Colors.white),
+                  );
+                },
+              )
+                  : Container(
+                width: 100,
+                height: 100,
+                color: Colors.grey[300],
+                child: const Icon(Icons.image, color: Colors.white),
               ),
             ),
           ],

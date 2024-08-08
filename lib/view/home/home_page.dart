@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:physio_digital/view/home/buttom_bar.dart';
-import 'package:physio_digital/view/home/clinic_near_you.dart';
-import 'package:physio_digital/view/home/informative_articles.dart';
 import 'package:physio_digital/view/home/upcoming_events.dart';
-import 'package:physio_digital/view/notification/list_notifications.dart';
-// import 'package:physio_consult/controllers/home_controller.dart';
+import '../../../exports.dart';
+import 'clinic_near_you.dart';
+import 'informative_articles.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,13 +13,45 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
+  final HomeController homeController = Get.find();
+  final PostController postController = Get.find<PostController>();
+  final ValueNotifier<int> _currentIndex = ValueNotifier<int>(0);
+  final TextEditingController _searchController = TextEditingController();
+  final RxString _searchTerm = ''.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadData() async {
+    await postController.fetchPosts();
+    setState(() {});
+  }
+
+  void _onSearchChanged() {
+    _searchTerm.value = _searchController.text.toLowerCase();
+  }
+
+  List<Post> _getFilteredPosts() {
+    return postController.posts.where((post) {
+      return post.title!.toLowerCase().contains(_searchTerm.value) ||
+          post.description!.toLowerCase().contains(_searchTerm.value) ||
+          post.category.any((cat) => cat.toLowerCase().contains(_searchTerm.value));
+    }).toList();
+  }
 
   void _onTap(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-
+    _currentIndex.value = index;
     switch (index) {
       case 0:
         Get.toNamed('/');
@@ -43,162 +73,87 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    try {
-      return Scaffold(
-        
-        backgroundColor: const Color(0xFFF5F5F5),
-        body: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            _buildSearchBar(context),
+            SliverPadding(
+              padding: const EdgeInsets.all(13.0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  ClinicNearYou(),
+                  Obx(() {
+                    final filteredPosts = _getFilteredPosts();
+                    final eventPosts = filteredPosts.where((post) => post.category.contains('Events')).toList();
+                    return UpcomingEvents(events: eventPosts);
+                  }),
+                  const SizedBox(height: 20),
+                  Obx(() {
+                    final filteredPosts = _getFilteredPosts();
+                    return InformativeArticles(posts: filteredPosts);
+                  }),
+                ]),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: _currentIndex,
+        builder: (context, currentIndex, _) {
+          return CustomBottomNavigationBar(
+            currentIndex: currentIndex,
+            onTap: _onTap,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return SliverToBoxAdapter(
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(35),
+            bottomRight: Radius.circular(35),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(13.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(35),
-                    bottomRight: Radius.circular(35),
+              const SizedBox(height: 20),
+              TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search for events or articles',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      _onSearchChanged();
+                    },
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(13.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 20,),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color:
-                                      const Color.fromARGB(255, 218, 218, 218),
-                                  width: 4.0,
-                                ),
-                              ),
-                              child: const CircleAvatar(
-                                backgroundImage:
-                                    AssetImage('assets/images/onboard.jpg'),
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
-                          const Spacer(),
-                          const Spacer(),
-                          const Spacer(),
-                          const Spacer(),
-                          const Spacer(),
-                          Expanded(
-                            child: Stack(
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    Get.to(const ListNotifications());
-                                  },
-                                  icon: const Icon(
-                                    Icons.notifications,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Positioned(
-                                  right: 0,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(1),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 12,
-                                      minHeight: 12,
-                                    ),
-                                    child: const Text(
-                                      '5',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 8,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      // const Row(
-                      //   children: [
-                      //     Text.rich(
-                      //       TextSpan(
-                      //           text: "Good day, ",
-                      //           style: TextStyle(
-                      //               fontSize: 18,
-                      //               color: Color.fromARGB(255, 184, 184, 184)),
-                      //           children: [
-                      //             TextSpan(
-                      //               text: 'Christian 👋',
-                      //               style: TextStyle(
-                      //                   fontWeight: FontWeight.bold,
-                      //                   color: Colors.white),
-                      //             )
-                      //           ]),
-                      //     )
-                      //   ],
-                      // ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search for therapist, products',
-                          prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(30),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                        ),
-                        cursorColor: const Color.fromARGB(255, 128, 128, 128),
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
                   ),
+                  filled: true,
+                  fillColor: Colors.white,
                 ),
+                cursorColor: const Color.fromARGB(255, 128, 128, 128),
               ),
-              Container(
-                color: Colors.white,
-                padding: const EdgeInsets.all(13.0),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ClinicNearYou(),
-                    UpcomingEvents(),
-                    InformativeArticles(),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
-        bottomNavigationBar: CustomBottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: _onTap,
-        ),
-      );
-    } catch (e) {
-      return const Scaffold(
-        body: Center(
-          child: Text('An error occurred'),
-        ),
-      );
-    }
+      ),
+    );
   }
 }
-

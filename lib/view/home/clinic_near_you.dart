@@ -1,10 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
-import 'package:physio_digital/view/clinics/clinic_profile/clinic_details.dart';
+import 'package:physio_digital/model/clinic/clinic.dart';
+import 'package:physio_digital/repository/clinic_repository.dart';
+import '../doctor_and_clinic/clinic_profile/clinic_details.dart';
+import 'dart:math';
+
+class ClinicsNearYouController extends GetxController {
+  final ClinicRepository _repository = ClinicRepositoryImpl();
+  final RxList<Clinic> nearbyClinicss = <Clinic>[].obs;
+  final RxBool isLoading = true.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchNearbyClinicss();
+  }
+
+  Future<void> fetchNearbyClinicss() async {
+    try {
+      isLoading.value = true;
+      List<Clinic> allClinicss = await _repository.getAllClinic();
+
+      // Randomly select up to 5 clinics
+      final random = Random();
+      allClinicss.shuffle(random);
+      nearbyClinicss.value = allClinicss.take(5).toList();
+    } catch (e) {
+      print('Error fetching nearby clinics: $e');
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}
 
 class ClinicNearYou extends StatelessWidget {
-  const ClinicNearYou({Key? key}) : super(key: key);
+  final ClinicsNearYouController controller = Get.put(ClinicsNearYouController());
+
+  ClinicNearYou({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,8 +45,14 @@ class ClinicNearYou extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionTitle('Clinic Near you', onViewAll: () {}),
-          _buildClinicList(),
+          _buildSectionTitle('Clinics Near You', onViewAll: () {}),
+          Obx(() {
+            if (controller.isLoading.value) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return _buildClinicList();
+            }
+          }),
         ],
       ),
     );
@@ -29,23 +68,6 @@ class ClinicNearYou extends StatelessWidget {
             title,
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
           ),
-          // TextButton.icon(
-          //   onPressed: () {},
-          //   label: const Text(
-          //     'See all',
-          //     style: TextStyle(color: Color.fromARGB(255, 99, 99, 99)),
-          //   ),
-          //   icon: const Icon(Icons.arrow_forward, size: 16),
-          //   iconAlignment: IconAlignment.end,
-          //   style: TextButton.styleFrom(
-          //     iconColor: const Color.fromARGB(255, 99, 99, 99),
-          //     backgroundColor: Colors.transparent,
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(20),
-          //     ),
-          //     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          //   ),
-          // ),
         ],
       ),
     );
@@ -54,22 +76,20 @@ class ClinicNearYou extends StatelessWidget {
   Widget _buildClinicList() {
     return SizedBox(
       height: 180,
-      child: ListView(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        children: [
-          _buildClinicCard(
-              'Dr Felix clinic', '300m', 'assets/images/onboard.jpg'),
-          _buildClinicCard(
-              'Manglo Hospital', '3.4km', 'assets/images/onboard.jpg'),
-        ],
+        itemCount: controller.nearbyClinicss.length,
+        itemBuilder: (context, index) {
+          return _buildClinicCard(controller.nearbyClinicss[index]);
+        },
       ),
     );
   }
 
-  Widget _buildClinicCard(String name, String distance, String imagePath) {
+  Widget _buildClinicCard(Clinic clinic) {
     return GestureDetector(
       onTap: () {
-        Get.to(const ClinicDetails());
+        Get.to(() => ClinicDetails(clinic: clinic));
       },
       child: Container(
         width: 200,
@@ -88,8 +108,15 @@ class ClinicNearYou extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Stack(
             children: [
-              Image.asset(
-                imagePath,
+              clinic.images.isNotEmpty
+                  ? Image.network(
+                clinic.images.first,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              )
+                  : Image.asset(
+                'assets/images/placeholder_clinic.jpg',
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
@@ -101,11 +128,9 @@ class ClinicNearYou extends StatelessWidget {
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.7),
-                    borderRadius: const BorderRadius.only(
-                        bottomRight: Radius.circular(8)),
+                    borderRadius: const BorderRadius.only(bottomRight: Radius.circular(8)),
                   ),
-                  child: const FaIcon(FontAwesomeIcons.stethoscope,
-                      color: Colors.white, size: 14),
+                  child: const FaIcon(FontAwesomeIcons.stethoscope, color: Colors.white, size: 14),
                 ),
               ),
               Positioned(
@@ -114,8 +139,7 @@ class ClinicNearYou extends StatelessWidget {
                 right: 0,
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(12)),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
                     gradient: LinearGradient(
                       begin: Alignment.bottomCenter,
                       end: Alignment.topCenter,
@@ -130,7 +154,7 @@ class ClinicNearYou extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        clinic.name ?? 'Unknown Clinic',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
@@ -139,11 +163,12 @@ class ClinicNearYou extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        distance,
+                        clinic.description ?? 'No location available',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                         ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:physio_digital/controllers/home_controller.dart';
-import 'package:physio_digital/view/home/buttom_bar.dart';
-import 'package:physio_digital/view/posts/view_post.dart';
+import '../../../exports.dart';
 
 class ListPostsPage extends StatefulWidget {
   const ListPostsPage({Key? key}) : super(key: key);
@@ -13,6 +9,7 @@ class ListPostsPage extends StatefulWidget {
 
 class ListPostsPageState extends State<ListPostsPage> {
   final HomeController homeController = Get.find();
+  final PostController postController = Get.find<PostController>();
   final RxString activeCategory = 'see all'.obs;
   final List<String> categories = [
     'see all',
@@ -21,18 +18,15 @@ class ListPostsPageState extends State<ListPostsPage> {
     'Events',
     'Jobs',
     'webinars',
-    'Conference'
+    'Conferences',
+    'scholarships'
   ];
 
-  // Simulated posts data
-  final List<Map<String, dynamic>> allPosts = [
-    {'title': 'News Article 1', 'category': 'news', 'date': 'Feb 22, 2024'},
-    {'title': 'Internship Opportunity', 'category': 'Internships', 'date': 'Feb 23, 2024'},
-    {'title': 'Upcoming Conference', 'category': 'Conference', 'date': 'Feb 24, 2024'},
-    {'title': 'Job Opening', 'category': 'Jobs', 'date': 'Feb 25, 2024'},
-    {'title': 'Webinar Announcement', 'category': 'webinars', 'date': 'Feb 26, 2024'},
-    {'title': 'Event Invitation', 'category': 'Events', 'date': 'Feb 27, 2024'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    postController.fetchPosts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +35,7 @@ class ListPostsPageState extends State<ListPostsPage> {
         children: [
           _buildHeader(),
           _buildCategoryList(),
-          _buildRecentHeader(),
+          // _buildRecentHeader(),
           _buildPostsList(),
         ],
       ),
@@ -63,10 +57,10 @@ class ListPostsPageState extends State<ListPostsPage> {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const Spacer(),
-            IconButton(
-              onPressed: () => print('search'),
-              icon: const Icon(Icons.search, color: Colors.black),
-            )
+            // IconButton(
+            //   onPressed: () => print('search'),
+            //   icon: const Icon(Icons.search, color: Colors.black),
+            // )
           ],
         ),
       ),
@@ -125,9 +119,12 @@ class ListPostsPageState extends State<ListPostsPage> {
   Widget _buildPostsList() {
     return Expanded(
       child: Obx(() {
+        if (postController.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
         final filteredPosts = activeCategory.value == 'see all'
-            ? allPosts
-            : allPosts.where((post) => post['category'] == activeCategory.value).toList();
+            ? postController.posts
+            : postController.posts.where((post) => post.category.contains(activeCategory.value)).toList();
         return ListView.builder(
           itemCount: filteredPosts.length,
           itemBuilder: (context, index) => _buildPostItem(filteredPosts[index], context),
@@ -136,10 +133,18 @@ class ListPostsPageState extends State<ListPostsPage> {
     );
   }
 
-  Widget _buildPostItem(Map<String, dynamic> post, BuildContext context) {
+  Widget _buildPostItem(Post post, BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => ViewArticlePage(post: post,)));
+        // Convert Post object to Map<String, dynamic>
+        Map<String, dynamic> postMap = {
+          'title': post.title,
+          'description': post.description,
+          'category': post.category.isNotEmpty ? post.category[0] : 'Uncategorized',
+          'imageUrl': post.images.isNotEmpty ? post.images[0] : null,
+          // Add other fields as necessary
+        };
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ViewArticlePage(post: post)));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
@@ -155,11 +160,11 @@ class ListPostsPageState extends State<ListPostsPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.blue[50], // Light blue background
+                      color: Colors.blue[50],
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      post['category'] ?? 'Uncategorized',
+                      post.category.isNotEmpty ? post.category[0] : 'Uncategorized',
                       style: TextStyle(
                         color: Colors.blue[700],
                         fontSize: 12,
@@ -169,7 +174,7 @@ class ListPostsPageState extends State<ListPostsPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    post['title'] ?? 'Untitled',
+                    post.title ?? 'Untitled',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -178,7 +183,7 @@ class ListPostsPageState extends State<ListPostsPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    post['description'] ?? 'No description available',
+                    post.description ?? 'No description available',
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 14,
@@ -187,25 +192,15 @@ class ListPostsPageState extends State<ListPostsPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-                      const SizedBox(width: 4),
-                      Text(
-                        post['date'] ?? 'No date',
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
             const SizedBox(width: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: post['imageUrl'] != null
+              child: post.images.isNotEmpty
                   ? Image.network(
-                post['imageUrl']!,
+                post.images[0],
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,

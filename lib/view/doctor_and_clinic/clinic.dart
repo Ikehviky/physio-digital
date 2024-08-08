@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:physio_digital/controllers/home_controller.dart';
-import 'package:physio_digital/view/home/buttom_bar.dart';
+import 'package:physio_digital/view/doctor_and_clinic/therapists/listTherapist/list_therapist_view.dart';
 
-import '../therapists/listTherapist/list_therapist_view.dart';
-import 'clinic_view.dart';
+import '../../exports.dart';
+import 'listclinic/list_clinic_view.dart';
 
 class Clinic extends StatefulWidget {
   const Clinic({Key? key}) : super(key: key);
@@ -32,7 +29,7 @@ class ClinicState extends State<Clinic> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(
-                  vertical: 10.0, horizontal: 15.0),
+                  vertical: 30.0, horizontal: 15.0),
               child: Row(
                 children: [
                   const Icon(Icons.article),
@@ -44,16 +41,16 @@ class ClinicState extends State<Clinic> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () {
-                      print('clinic');
-                    },
-                    icon: const Icon(
-                      Icons.search,
-                      color: Colors.black,
-                    ),
-                  )
+                  // const Spacer(),
+                  // IconButton(
+                  //   onPressed: () {
+                  //     print('clinic');
+                  //   },
+                  //   icon: const Icon(
+                  //     Icons.search,
+                  //     color: Colors.black,
+                  //   ),
+                  // )
                 ],
               ),
             ),
@@ -124,11 +121,12 @@ class ClinicState extends State<Clinic> {
   Widget _buildCategoryView() {
     switch (activeCategory) {
       case 'Therapist':
-        return const TherapistView();
+        return const ListTherapistView();
       case 'Clinic':
-        return const ClinicsView();
+        return ClinicsView();
       default:
-        return const TherapistView();
+        return const ListTherapistView();
+        // return const TherapistView();
     }
   }
 }
