@@ -7,7 +7,32 @@ import 'package:physio_digital/view/home/buttom_bar.dart';
 class UserProfile extends StatelessWidget {
   const UserProfile({Key? key}) : super(key: key);
 
-  void logout() {
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+            ),
+            TextButton(
+              child: const Text('Logout'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _logout();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _logout() {
     try {
       final AuthService _auth = AuthService();
       _auth.signOut();
@@ -23,7 +48,7 @@ class UserProfile extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F5F5),
       body: Column(
         children: [
-          _buildHeader(),
+          _buildHeader(context),
           Expanded(
             child: _buildContent(),
           ),
@@ -33,7 +58,7 @@ class UserProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF354AD9),
@@ -51,7 +76,7 @@ class UserProfile extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 30),
       child: Column(
         children: [
-          _buildHeaderTopRow(),
+          _buildHeaderTopRow(context),
           _buildProfileImage(),
           const SizedBox(height: 10),
           _buildProfileName(),
@@ -60,26 +85,29 @@ class UserProfile extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderTopRow() {
+
+  Widget _buildHeaderTopRow(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(10),
       child: Row(
         children: [
           Icon(Icons.storefront, color: Colors.white),
           SizedBox(width: 5),
-          Text(
-            'Profile',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Expanded(
+            child: Text(
+              'Profile',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-          Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: logout,
+          GestureDetector(
+            onTap: () => _confirmLogout(context),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Icon(Icons.logout, color: Colors.white),
             ),
           )
@@ -105,7 +133,7 @@ class UserProfile extends StatelessWidget {
 
   Widget _buildProfileName() {
     return const Text(
-      'Physio-Digital Services',
+      'PhysioDigital Asistant',
       style: TextStyle(
         fontWeight: FontWeight.bold,
         color: Colors.white,
@@ -209,12 +237,15 @@ class UserProfile extends StatelessWidget {
               children: [
                 Icon(icon, color: Colors.white, size: 24),
                 SizedBox(width: 12),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
