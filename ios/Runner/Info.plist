@@ -48,9 +48,9 @@
 		<key>UIStatusBarHidden</key>
 		<false/>
 		<key>LSApplicationQueriesSchemes</key>
-        <array>
-          <string>https</string>
-          <string>whatsapp</string>
-        </array>
+		<array>
+			<string>https</string>
+			<string>whatsapp</string>
+		</array>
 	</dict>
 </plist>

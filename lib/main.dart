@@ -1,10 +1,11 @@
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:physio_digital/view/doctor_and_clinic/therapists/listTherapist/list_therapist_controller.dart';
 import 'package:physio_digital/repository/post_repository.dart';
-import 'package:physio_digital/view/posts/listPost/list_post_controller.dart';
 import 'exports.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await initializeFirebase();
   await initializeDependencies();
   runApp(const MyApp());
@@ -51,6 +52,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    FlutterNativeSplash.remove();
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       getPages: [
