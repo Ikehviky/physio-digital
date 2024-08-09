@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.physio_digital">
     <application
         android:label="PhysioDigital Assistant"
         android:name="${applicationName}"
