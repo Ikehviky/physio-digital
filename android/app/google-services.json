@@ -12,7 +12,12 @@
           "package_name": "com.example.physio_digital"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "967395113627-mn6m6817hquvul95vko383a84j19is7h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD4phpARGhI357V--xc2lFDSwhT4M8bpgU"
@@ -20,7 +25,91 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967395113627-mn6m6817hquvul95vko383a84j19is7h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "967395113627-c993ihnad32i4r68fdmjs2rbnoduchcf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.physioDigital"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967395113627:android:d8a53c7435338e965be43e",
+        "android_client_info": {
+          "package_name": "com.example.physio_digital_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967395113627-mn6m6817hquvul95vko383a84j19is7h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4phpARGhI357V--xc2lFDSwhT4M8bpgU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967395113627-mn6m6817hquvul95vko383a84j19is7h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "967395113627-c993ihnad32i4r68fdmjs2rbnoduchcf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.physioDigital"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967395113627:android:1f2f17acb4fa49235be43e",
+        "android_client_info": {
+          "package_name": "com.physio.digital"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967395113627-mn6m6817hquvul95vko383a84j19is7h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD4phpARGhI357V--xc2lFDSwhT4M8bpgU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967395113627-mn6m6817hquvul95vko383a84j19is7h.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "967395113627-c993ihnad32i4r68fdmjs2rbnoduchcf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.physioDigital"
+              }
+            }
+          ]
         }
       }
     }

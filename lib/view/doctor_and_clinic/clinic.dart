@@ -59,7 +59,7 @@ class ClinicState extends State<Clinic> {
               padding: const EdgeInsets.symmetric(
                   vertical: 10.0, horizontal: 10.0),
               child: SizedBox(
-                height: 30,
+                height: 40,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   itemCount: categories.length,

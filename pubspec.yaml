@@ -1,5 +1,11 @@
 name: physio_digital
-description: "A new Flutter project."
+description: "PhysioDigital Assistant (a software product from PhysioDigital Services) is an innovative mobile application designed to revolutionize access to physiotherapy and rehabilitation services in Nigeria. The app serves as a comprehensive platform connecting patients with certified physiotherapists, enabling users to purchase and access physiotherapy equipment and providing updates on the latest in physiotherapy practice.\n\nKey features include:\n'
+'• Clinician-Patient Connection: Facilitates direct communication between patients and physiotherapists for consultations and treatment plans.\n'
+'• Equipment Marketplace: Offers a wide range of physiotherapy and health equipment for purchase.\n'
+'• Educational Resources: Provides news, scholarships, internships, webinars, and conferences updates.\n'
+'• User-Friendly Interface: Designed for ease of use, ensuring accessibility for users of all technical abilities.\n'
+'• Secure Transactions: Ensures all purchases and communications are secure and confidential.',"
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

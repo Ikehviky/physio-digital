@@ -13,7 +13,7 @@ class BuyNowButton extends StatelessWidget {
       imageInfo = 'Image available at: ${product.images!.first}';
     }
 
-    final String whatsappUrl = "https://wa.me/+2348115789924/?text=" +
+    final String whatsappUrl = "https://wa.me/+2348126308488/?text=" +
         Uri.encodeComponent(
           "Product: ${product.name}\n\n"
               "Price: ₦${product.price}\n\n"
